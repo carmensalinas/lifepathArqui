@@ -2,8 +2,8 @@
   <div class="home">
     <div class="login">
       <img src="https://gblobscdn.gitbook.com/spaces%2F-M2g31CUvdCruJm660Ot%2Favatar-1591606200757.png?alt=media" style="margin:0 auto" alt="logo" height="140px" width="140px">
-      <input type="text" id="username" placeholder="Registra tu nombre" v-model="username">
-      <button @click="signIn" class="login-btn" :disabled="loading">{{loading?'registrando...':'Ingresar'}}</button>
+      <!-- <input type="text" id="username" placeholder="Registra tu nombre" v-model="username"> -->
+      <button @click="logIn" class="login-btn" :disabled="loading">{{loading?'registrando...':'Ingresa con Google'}}</button>
       <small class="error">{{error}}</small>
     </div>
     <div class="welcome" :class="{'appear':newUser}">
@@ -16,16 +16,9 @@
 // @ is an alias to /src
 
 
-import {db} from '../utils/firebase'
+import {db,fb} from '../utils/firebase'
 	
-	
-	const save = async ()=>{
-		await db.collection('texts').doc().set({text,date: Date.now()})
-		text = ''
-		document.getElementById("inpt").focus()
-		console.log('done')
 
-	}
 
 export default {
   name: 'Home',
@@ -38,31 +31,58 @@ export default {
     }
   },
   methods:{
-    signIn(){
+    signIn(email,name){
       this.error= ''
       this.loading = true
       var that = this
-      var docRef = db.collection("users").doc(this.username);
+      var docRef = db.collection("users").doc(email);
       docRef.get().then(async (doc) => {
-        if (doc.exists) {
-            that.loading = false
-            that.error = 'Usuario ya registrado, por favor pruebe otro nombre'
-        } else {
+        if (!doc.exists) {
             that.newUser = true
-            await db.collection('users').doc(that.username).set({password: that.username})
-            localStorage.setItem('username',that.username)
-            let activity = localStorage.getItem('activity')
-            console.log(activity)
-            if(!activity){
-              that.$router.push('/actividades')
-            }else{
-              localStorage.removeItem('activity')
-              that.$router.push(`/actividades/${activity}`)
-            }
+            await db.collection('users').doc(email).set({name: name})
         }
+        localStorage.setItem('email', email)
+        that.$router.push('/actividades')
+        
       }).catch((error) => {
         console.log("Error getting document:", error);
       });
+    },
+
+    logIn(){
+      var that = this
+      var provider = new fb.auth.GoogleAuthProvider();
+      fb.auth()
+      .signInWithPopup(provider)
+      .then((result) => {
+        var credential = result.credential;
+        console.log(credential);
+        var token = credential.accessToken;
+        console.log(token);
+        var user = result.user;
+        console.log(user);
+        that.signIn(user.email, user.displayName)
+      }).catch((error) => {
+        // Handle Errors here.
+        console.log(error);
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        var credential = error.credential;
+      });
+    },
+    async saveUser(email,name,id){
+      try {
+        await db.collection('users').doc().set({email,name, id, date: Date.now()})
+        console.log("ok");
+        
+      } catch (error) {
+        console.log(error);
+      }
+      
+
+	
     }
   },
   created(){
@@ -105,7 +125,7 @@ export default {
   padding: 30px;
 }
 
-#username{
+#username, #password{
   margin-top: 20px;
   text-align: center;
   border-radius: 10px;

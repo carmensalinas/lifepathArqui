@@ -47,10 +47,12 @@
 
     <div class="header">
       <div class="title">
-        Mis Actividadesssss ({{activities.length}})
+        Mis Actividades ({{activities.length}})
       </div>
       <button class="add" @click="add">+</button>
-      <button class="actividad" @click="add">hey</button>
+      <div class="cierre">
+      <button class="logout" @click="logout">Cerrar Sesión</button>
+      </div>
     </div>
     <hr>
     <div
@@ -89,7 +91,7 @@
 <script>
 
 import {db} from '../utils/firebase'
-const baseurl = location.hostname==='localhost'?'https://upcex.herokuapp.com/actividades/':'https://upcex.herokuapp.com/actividades/'
+const baseurl = location.hostname==='localhost'?'https:/lifepath-aff4c.web.app/actividades/':'https:/lifepath-aff4c.web.app/actividades/'
 
 export default {
   name: 'Actividades',
@@ -151,7 +153,7 @@ export default {
           title: 'Compartir actividad',
           url: this.generatedLink
           }).then(() => {
-            console.log('Thanks for use UPCex!');
+            alert('Gracias por usar Lifepath!');
           })
           .catch(console.error);
       } else {
@@ -200,6 +202,9 @@ export default {
     add(){
       this.$modal.show('my-first-modal');
     },
+    logout(){
+      this.$router.push('/');
+    },
     async newAct(){
       let pattern = new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[#?!@$%^&*-]).{8,20}$")
       var that = this
@@ -214,6 +219,7 @@ export default {
         if(e.name == this.actName) return that.error = 'No se puede repetir nombre de actividad'
       });
       if(this.error)return this.loading = false
+      // return console.log(this.username);
       await db.collection("activities").doc()
         .set({
           name:this.actName,
@@ -250,12 +256,9 @@ export default {
     }
   },
   created(){
-    this.username = localStorage.getItem('username')
-    if(!this.username){
-      this.$router.push('/')
-    }else{
-      this.getActs()
-    }
+    this.username = localStorage.getItem('email')
+    this.getActs()
+
   }
 
 }
@@ -402,6 +405,12 @@ export default {
   border: none;
 }
 
+.logout{
+  padding: 5px 10px;
+  color: white;
+  background-color: #eb1717;
+  border: none;
+}
 .header{
   display: inline-block;
 }
@@ -411,6 +420,12 @@ export default {
   font-size: 1.4rem;
   padding: 10px 10px;
   display: inline-block;
+}
+
+.cierre{
+  font-size: 1.4rem;
+  padding: 10px 10px;
+  display: inline;
 }
 
 .act-name{

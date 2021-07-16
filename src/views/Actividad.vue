@@ -105,7 +105,7 @@
 <script>
 
 import {db} from '../utils/firebase'
-const baseurl = location.hostname==='localhost'?'https://upcex.herokuapp.com/actividades/':'https://upcex.herokuapp.com/actividades/'
+const baseurl = location.hostname==='localhost'?'https:/lifepath-aff4c.web.app/actividades/':'https:/lifepath-aff4c.web.app/actividades/'
 
 export default {
   name: 'Actividad',

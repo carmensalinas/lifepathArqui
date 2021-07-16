@@ -1,5 +1,8 @@
 import firebase from "firebase/app";
 import 'firebase/firestore'
+var firebaseui = require('firebaseui');
+// Initialize the FirebaseUI Widget using Firebase.
+
 
 var firebaseConfig = {
   apiKey: "AIzaSyDUicAhp5pUzDpemfNyb3nKZ_tQnqKI7l4",
@@ -16,4 +19,4 @@ var firebaseConfig = {
   // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 export const db = firebase.firestore()
-
+export const fb = firebase
